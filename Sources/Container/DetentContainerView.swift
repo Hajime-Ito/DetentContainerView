@@ -21,12 +21,16 @@ public final class DetentContainerView: RotatableView {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
+        layer.cornerRadius = 16
+        clipsToBounds = true
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
+        layer.cornerRadius = 16
+        clipsToBounds = true
     }
 
     override var _marginFromSideEdge: CGFloat { marginFromSideEdge }
