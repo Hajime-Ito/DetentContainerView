@@ -12,7 +12,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "DetentContainerView",
-            targets: ["DetentContainerView"]),
+            targets: ["DetentContainerView"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -23,9 +24,15 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "DetentContainerView",
-            dependencies: []),
-        .testTarget(
-            name: "DetentContainerViewTests",
-            dependencies: ["DetentContainerView"]),
+            dependencies: [],
+            path: "Sources",
+            sources: [
+                "Container",
+                "Detent",
+                "Extension",
+                "Stretch",
+                "View",
+            ]
+        ),
     ]
 )
