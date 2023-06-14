@@ -24,7 +24,6 @@ final class StretchHandler {
     private let allowSlideDown: Bool
 
     private var canSlide = false
-    private var stretchSpeed = StretchSpeed.default
 
     init(
         stretchView: UIView,
@@ -73,7 +72,7 @@ extension StretchHandler {
         
         let isOverInitialMarginFromBottom = stretchActionHandler.marginFromBottom > initialMarginFromBottom
         let isSlideUp = isOverInitialMarginFromBottom && translation.y < 0
-        let factor = isSlideUp ? StretchSpeed.slow.rawValue : stretchSpeed.rawValue
+        let factor = isSlideUp ? StretchSpeed.slow.rawValue : StretchSpeed.default.rawValue
         stretchActionHandler.marginFromBottom -= translation.y * CGFloat(factor)
 
     }
@@ -100,13 +99,13 @@ extension StretchHandler {
 
         if velocity.y < 0 {
             let isOverMaximumHeight = stretchActionHandler.height >= maximumHeight
-            stretchSpeed = isOverMaximumHeight ? .slow : .default
+            let stretchSpeed: StretchSpeed = isOverMaximumHeight ? .slow : .default
+            stretchActionHandler.height += -translation.y * CGFloat(stretchSpeed.rawValue)
         } else {
             let isUnderMinimumHeight = stretchActionHandler.height < minimumHeight
-            stretchSpeed = isUnderMinimumHeight ? .slow : .default
+            let stretchSpeed: StretchSpeed = isUnderMinimumHeight ? .slow : .default
+            stretchActionHandler.height += -translation.y * CGFloat(stretchSpeed.rawValue)
         }
-
-        stretchActionHandler.height += -translation.y * CGFloat(stretchSpeed.rawValue)
     }
 
     private func setStretchGestureHandlerAction(
