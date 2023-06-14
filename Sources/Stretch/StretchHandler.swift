@@ -72,7 +72,7 @@ extension StretchHandler {
         
         let isOverInitialMarginFromBottom = stretchActionHandler.marginFromBottom > initialMarginFromBottom
         let isSlideUp = isOverInitialMarginFromBottom && translation.y < 0
-        let factor = isSlideUp ? StretchSpeed.slow.rawValue : StretchSpeed.default.rawValue
+        let factor = allowSlideDown && !isSlideUp ? StretchSpeed.default.rawValue : StretchSpeed.slow.rawValue
         stretchActionHandler.marginFromBottom -= translation.y * CGFloat(factor)
 
     }
@@ -82,7 +82,7 @@ extension StretchHandler {
         let marginFromBottom = stretchActionHandler.marginFromBottom
         let stretchViewMinimumHeight = stretchActionHandler.stretchViewConfiguration.minimumHeight
 
-        if marginFromBottom + stretchViewMinimumHeight < stretchViewMinimumHeight * 0.6 {
+        if allowSlideDown, marginFromBottom + stretchViewMinimumHeight < stretchViewMinimumHeight * 0.6 {
             stretchActionHandler.disappear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidDisappear() }
         } else {
             stretchActionHandler.appear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidAppear() }
@@ -115,15 +115,11 @@ extension StretchHandler {
 
         stretchGestureHandler.stretch = { [weak self] item in
             guard let self else { return }
-            
-            if self.allowSlideDown {
-                let isStretchViewHeightMinimum = self.stretchActionHandler.height <= stretchViewConfiguration.minimumHeight
-                let isPannedDown = item.translation.y > 0
-                self.canSlide = self.canSlide ? true : isStretchViewHeightMinimum && isPannedDown
-            } else {
-                self.canSlide = false
-            }
-            
+
+            let isStretchViewHeightMinimum = self.stretchActionHandler.height <= stretchViewConfiguration.minimumHeight
+            let isPannedDown = item.translation.y > 0
+            self.canSlide = self.canSlide ? true : isStretchViewHeightMinimum && isPannedDown
+
             if self.canSlide {
                 self.handleSlide(translation: item.translation, velocity: item.velocity)
             } else {
