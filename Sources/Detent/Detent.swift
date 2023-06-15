@@ -1,27 +1,27 @@
 import UIKit
 
 public enum Detent {
-    case top(height: CGFloat)
-    case upper(height: CGFloat)
-    case lower(height: CGFloat)
-    case bottom(height: CGFloat)
+    case top(heightRatio: CGFloat)
+    case upper(heightRatio: CGFloat)
+    case lower(heightRatio: CGFloat)
+    case bottom(heightRatio: CGFloat)
 }
 
 extension Detent {
 
-    public var height: CGFloat {
+    public func height(from maximumHeight: CGFloat) -> CGFloat {
         switch self {
-        case let .top(height): return height
-        case let .upper(height): return height
-        case let .lower(height): return height
-        case let .bottom(height): return height
+        case let .top(heightRatio): return maximumHeight * heightRatio
+        case let .upper(heightRatio): return maximumHeight * heightRatio
+        case let .lower(heightRatio): return maximumHeight * heightRatio
+        case let .bottom(heightRatio): return maximumHeight * heightRatio
         }
     }
 
-    public static var topType: Detent { .top(height: .zero) }
-    public static var upperType: Detent { .upper(height: .zero) }
-    public static var lowerType: Detent { .lower(height: .zero) }
-    public static var bottomType: Detent { .bottom(height: .zero) }
+    public static var topType: Detent { .top(heightRatio: .zero) }
+    public static var upperType: Detent { .upper(heightRatio: .zero) }
+    public static var lowerType: Detent { .lower(heightRatio: .zero) }
+    public static var bottomType: Detent { .bottom(heightRatio: .zero) }
 
 }
 

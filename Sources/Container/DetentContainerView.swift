@@ -7,14 +7,14 @@ public final class DetentContainerView: RotatableView {
         didSet { headerView.barColor = headerBarColor }
     }
 
+    private var maximumHeight: CGFloat = 0
+    private var marginFromBottom: CGFloat = 0
+    private var viewDidRotated = true
     private var headerView = HeaderView()
     private var blurEffecteBackgroundView = BlurEffecteBackgroundView()
     private var backgroundShadeView = BackgroundShadeView()
-
     private var detentManager: OrientationDetentManager?
     private var stretchHandler: StretchHandler?
-
-    private var marginFromBottom: CGFloat = 0
 
     override init(frame: CGRect) {
         let frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: UIScreen.main.bounds.width, height: frame.height)
@@ -35,18 +35,18 @@ public final class DetentContainerView: RotatableView {
 
     override var _marginFromSideEdge: CGFloat { marginFromSideEdge }
 
-    override func viewDidRotated(currentOrientation: UIDeviceOrientation, previousOrientation: UIDeviceOrientation?) {
-        super.viewDidRotated(currentOrientation: currentOrientation, previousOrientation: previousOrientation)
+    override public func layoutSubviews() {
+        super.layoutSubviews()
 
-        detentManager?.orientation = currentOrientation == .portrait ? .portrait : .landscape
+        guard let detentManager = detentManager, let window, viewDidRotated else { return }
 
-        guard let detentManager = detentManager else { return }
-
+        marginFromBottom = window.safeAreaInsets.bottom == 0 ? 10 : 0
+        maximumHeight = window.screen.bounds.height - window.safeAreaInsets.bottom - window.safeAreaInsets.top - marginFromBottom * 2
         let configuration = createStretchViewConfiguration(detents: detentManager.currentHandler.detents)
         stretchHandler?.set(stretchViewConfiguration: configuration)
 
         if !isHidden {
-            let currentHeight = detentManager.currentHandler.detents.current.height + marginFromBottom
+            let currentHeight = detentManager.currentHandler.detents.current.height(from: maximumHeight) + marginFromBottom
             stretchHandler?.appear(
                 height: currentHeight,
                 animations: { [weak self] in
@@ -55,14 +55,14 @@ public final class DetentContainerView: RotatableView {
                 completion: nil
             )
         }
+
+        viewDidRotated = false
     }
 
-    public override func draw(_ rect: CGRect) {
-        super.draw(rect)
-        guard let detentManager = detentManager else { return }
-        marginFromBottom = superview?.safeAreaInsets.bottom == 0 ? 10 : 0
-        let configuration = createStretchViewConfiguration(detents: detentManager.currentHandler.detents)
-        stretchHandler?.set(stretchViewConfiguration: configuration)
+    override func viewDidRotated(currentOrientation: UIDeviceOrientation, previousOrientation: UIDeviceOrientation?) {
+        super.viewDidRotated(currentOrientation: currentOrientation, previousOrientation: previousOrientation)
+        detentManager?.orientation = currentOrientation == .portrait ? .portrait : .landscape
+        viewDidRotated = true
     }
 
     public func configure(
@@ -134,6 +134,7 @@ extension DetentContainerView: StretchHandlerDelegate {
             translation: translation,
             velocity: velocity,
             showingViewHeight: viewHeight,
+            screenHeight: maximumHeight,
             backgroundShadeDisplayPosition: backgroundShadeDisplayPosition,
             detentHandler: detentManager.currentHandler
         )
@@ -141,10 +142,9 @@ extension DetentContainerView: StretchHandlerDelegate {
 
     func stretchHandler(translation: CGPoint, velocity: CGPoint, finishStretch viewHeight: CGFloat) {
         guard let detentManager = detentManager else { return }
+        detentManager.currentHandler.changeDetentByPan(velocity: velocity, showingViewHeight: viewHeight, screenHeight: maximumHeight)
 
-        detentManager.currentHandler.changeDetentByPan(velocity: velocity, showingViewHeight: viewHeight)
-
-        let currentHeight = detentManager.currentHandler.detents.current.height + marginFromBottom
+        let currentHeight = detentManager.currentHandler.detents.current.height(from: maximumHeight) + marginFromBottom
         stretchHandler?.stretch(
             to: currentHeight,
             animations: { [weak self] in
@@ -214,9 +214,9 @@ extension DetentContainerView {
 
     private func createStretchViewConfiguration(detents: Detents) -> StretchActionHandler.StretchViewConfiguration {
         StretchActionHandler.StretchViewConfiguration(
-            initialHeight: detents.current.height + marginFromBottom,
-            minimumHeight: detents.registerd.bottom.height + marginFromBottom,
-            maximumHeight: detents.registerd.top.height + marginFromBottom,
+            initialHeight: detents.current.height(from: maximumHeight) + marginFromBottom,
+            minimumHeight: detents.registerd.bottom.height(from: maximumHeight) + marginFromBottom,
+            maximumHeight: detents.registerd.top.height(from: maximumHeight) + marginFromBottom,
             initialMarginFromBottom: marginFromBottom
         )
     }

@@ -33,7 +33,6 @@ public class RotatableView: UIView {
     }
 
     private var orientation: UIDeviceOrientation?
-
     private var widthConstraint: NSLayoutConstraint?
     private var leadingToSuperViewConstraint: NSLayoutConstraint?
     private var trailingToSuperViewConstraint: NSLayoutConstraint?
@@ -108,10 +107,10 @@ extension RotatableView {
         if orientation?.isLandscape == true {
             switch landscapeConfiguration.position {
             case .trailing:
-                let safeArea = superview?.safeAreaInsets.right ?? 0
+                let safeArea = window?.safeAreaInsets.right ?? 0
                 trailingToSuperViewConstraint?.constant = -(_marginFromSideEdge + safeArea)
             case .leading:
-                let safeArea = superview?.safeAreaInsets.left ?? 0
+                let safeArea = window?.safeAreaInsets.left ?? 0
                 leadingToSuperViewConstraint?.constant = _marginFromSideEdge + safeArea
             case .center:
                 break

@@ -21,7 +21,7 @@ final class DetentHandler {
         detents.lower()
     }
 
-    func changeDetentByPan(velocity: CGPoint, showingViewHeight: CGFloat) {
+    func changeDetentByPan(velocity: CGPoint, showingViewHeight: CGFloat, screenHeight: CGFloat) {
         guard !isLocked else { return }
 
         if velocity.y > DetentHandler.thresholdVelocityToChangeDetent {
@@ -34,23 +34,23 @@ final class DetentHandler {
             return
         }
 
-        detents.current = getNextDetent(by: showingViewHeight)
+        detents.current = getNextDetent(showingViewHeight: showingViewHeight, screenHeight: screenHeight)
     }
 
 }
 
 extension DetentHandler {
 
-    private func getNextDetent(by showingViewHeight: CGFloat) -> Detent {
-        if showingViewHeight > detents.registerd.top.height { return detents.registerd.top }
-        if showingViewHeight < detents.registerd.bottom.height { return detents.registerd.bottom }
+    private func getNextDetent(showingViewHeight: CGFloat, screenHeight: CGFloat) -> Detent {
+        if showingViewHeight > detents.registerd.top.height(from: screenHeight) { return detents.registerd.top }
+        if showingViewHeight < detents.registerd.bottom.height(from: screenHeight) { return detents.registerd.bottom }
         
         var checkDetent = detents.registerd.top
         while true {
             guard let belowCheckDetent = detents.registerd.below(checkDetent) else { break }
-            let centerHeight = belowCheckDetent.height + (checkDetent.height - belowCheckDetent.height) / 2
-            if showingViewHeight >= centerHeight && showingViewHeight <= checkDetent.height { return checkDetent }
-            if showingViewHeight < centerHeight && showingViewHeight >= belowCheckDetent.height { return belowCheckDetent }
+            let centerHeight = belowCheckDetent.height(from: screenHeight) + (checkDetent.height(from: screenHeight) - belowCheckDetent.height(from: screenHeight)) / 2
+            if showingViewHeight >= centerHeight && showingViewHeight <= checkDetent.height(from: screenHeight) { return checkDetent }
+            if showingViewHeight < centerHeight && showingViewHeight >= belowCheckDetent.height(from: screenHeight) { return belowCheckDetent }
             checkDetent = belowCheckDetent
         }
         return detents.registerd.bottom

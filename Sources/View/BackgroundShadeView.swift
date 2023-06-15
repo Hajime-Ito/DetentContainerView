@@ -48,21 +48,22 @@ final class BackgroundShadeView: UIView {
         translation: CGPoint,
         velocity: CGPoint,
         showingViewHeight: CGFloat,
+        screenHeight: CGFloat,
         backgroundShadeDisplayPosition: Detent,
         detentHandler: DetentHandler
     ) {
         guard let backgroundShadeDetentBelow = detentHandler.detents.registerd.below(backgroundShadeDisplayPosition) else { return }
 
-         let backgroundShadeDetentHeight = detentHandler.detents.registerd.find(backgroundShadeDisplayPosition).height
+         let backgroundShadeDetentHeight = detentHandler.detents.registerd.find(backgroundShadeDisplayPosition).height(from: screenHeight)
 
          if velocity.y > 0 {
-             if showingViewHeight > backgroundShadeDetentBelow.height, showingViewHeight < backgroundShadeDetentHeight {
-                 var percentage = Float(translation.y / (showingViewHeight - backgroundShadeDetentBelow.height)) * 5000
+             if showingViewHeight > backgroundShadeDetentBelow.height(from: screenHeight), showingViewHeight < backgroundShadeDetentHeight {
+                 var percentage = Float(translation.y / (showingViewHeight - backgroundShadeDetentBelow.height(from: screenHeight))) * 5000
                  percentage = ceil(percentage) / 100
                  disappear(percentage: percentage)
              }
          } else {
-             if showingViewHeight < backgroundShadeDetentHeight, showingViewHeight > backgroundShadeDetentBelow.height {
+             if showingViewHeight < backgroundShadeDetentHeight, showingViewHeight > backgroundShadeDetentBelow.height(from: screenHeight) {
                  var percentage = Float(-translation.y / (backgroundShadeDetentHeight - showingViewHeight)) * 5000
                  percentage = ceil(percentage) / 100
                  appear(percentage: percentage)
