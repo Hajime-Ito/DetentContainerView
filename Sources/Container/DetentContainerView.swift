@@ -114,6 +114,10 @@ public final class DetentContainerView: RotatableView {
     }
 
     public func appear(height: CGFloat, animations: (() -> Void)?, completion: (() -> Void)?) {
+        if let superview = superview {
+            backgroundShadeView.remove()
+            backgroundShadeView.add(on: superview, below: self)
+        }
         stretchHandler?.appear(height: height, animations: animations, completion: completion)
     }
 
@@ -158,12 +162,7 @@ extension DetentContainerView: StretchHandlerDelegate {
         backgroundShadeView.remove()
     }
 
-    func stretchHandlerDidAppear() {
-        if let superview = superview {
-            backgroundShadeView.remove()
-            backgroundShadeView.add(on: superview, below: self)
-        }
-    }
+    func stretchHandlerDidAppear() { }
 
 }
 
