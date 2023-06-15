@@ -22,6 +22,7 @@ final class StretchHandler {
     private let stretchGestureHandler: StretchGestureHandler
     private let stretchActionHandler: StretchActionHandler
     private let allowSlideDown: Bool
+    private let thresholdVelocityToSlideDown: CGFloat = 500
 
     private var canSlide = false
 
@@ -81,8 +82,10 @@ extension StretchHandler {
 
         let marginFromBottom = stretchActionHandler.marginFromBottom
         let stretchViewMinimumHeight = stretchActionHandler.stretchViewConfiguration.minimumHeight
+        let isOverThresholdVelocityToSlideDown = velocity.y > thresholdVelocityToSlideDown
+        let isUnderThresholdHeightToSlideDown = marginFromBottom + stretchViewMinimumHeight < stretchViewMinimumHeight * 0.6
 
-        if allowSlideDown, marginFromBottom + stretchViewMinimumHeight < stretchViewMinimumHeight * 0.6 {
+        if allowSlideDown, (isUnderThresholdHeightToSlideDown || isOverThresholdVelocityToSlideDown) {
             stretchActionHandler.disappear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidDisappear() }
         } else {
             stretchActionHandler.appear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidAppear() }
