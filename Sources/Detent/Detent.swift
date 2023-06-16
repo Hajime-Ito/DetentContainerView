@@ -1,27 +1,42 @@
 import UIKit
 
 public enum Detent {
-    case top(heightRatio: CGFloat)
-    case upper(heightRatio: CGFloat)
-    case lower(heightRatio: CGFloat)
-    case bottom(heightRatio: CGFloat)
+    case top(height: CGFloat?, heightRatio: CGFloat? = nil)
+    case upper(height: CGFloat?, heightRatio: CGFloat? = nil)
+    case lower(height: CGFloat?, heightRatio: CGFloat? = nil)
+    case bottom(height: CGFloat?, heightRatio: CGFloat? = nil)
 }
 
 extension Detent {
 
     public func height(from maximumHeight: CGFloat) -> CGFloat {
         switch self {
-        case let .top(heightRatio): return maximumHeight * heightRatio
-        case let .upper(heightRatio): return maximumHeight * heightRatio
-        case let .lower(heightRatio): return maximumHeight * heightRatio
-        case let .bottom(heightRatio): return maximumHeight * heightRatio
+        case let .top(height, heightRatio):
+            if let height = height { return height }
+            if let heightRatio = heightRatio { return heightRatio * maximumHeight }
+            return 0
+
+        case let .upper(height, heightRatio):
+            if let height = height { return height }
+            if let heightRatio = heightRatio { return heightRatio * maximumHeight }
+            return 0
+
+        case let .lower(height, heightRatio):
+            if let height = height { return height }
+            if let heightRatio = heightRatio { return heightRatio * maximumHeight }
+            return 0
+
+        case let .bottom(height, heightRatio):
+            if let height = height { return height }
+            if let heightRatio = heightRatio { return heightRatio * maximumHeight }
+            return 0
         }
     }
 
-    public static var topType: Detent { .top(heightRatio: .zero) }
-    public static var upperType: Detent { .upper(heightRatio: .zero) }
-    public static var lowerType: Detent { .lower(heightRatio: .zero) }
-    public static var bottomType: Detent { .bottom(heightRatio: .zero) }
+    public static var topType: Detent { .top(height: nil) }
+    public static var upperType: Detent { .upper(height: nil) }
+    public static var lowerType: Detent { .lower(height: nil) }
+    public static var bottomType: Detent { .bottom(height: nil) }
 
 }
 
