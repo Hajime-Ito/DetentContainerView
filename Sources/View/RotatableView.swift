@@ -36,6 +36,7 @@ public class RotatableView: UIView {
     private var widthConstraint: NSLayoutConstraint?
     private var leadingToSuperViewConstraint: NSLayoutConstraint?
     private var trailingToSuperViewConstraint: NSLayoutConstraint?
+    private var centerXToSuperViewConstraint: NSLayoutConstraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -132,10 +133,12 @@ extension RotatableView {
         widthConstraint = widthAnchor.constraint(equalToConstant: landscapeConfiguration.width)
         leadingToSuperViewConstraint = leadingAnchor.constraint(equalTo: layoutGuideLeading, constant: _marginFromSideEdge)
         trailingToSuperViewConstraint = trailingAnchor.constraint(equalTo: layoutGuideTrailing, constant: -_marginFromSideEdge)
+        centerXToSuperViewConstraint = centerXAnchor.constraint(equalTo: superview.centerXAnchor)
 
         widthConstraint?.isActive = false
         trailingToSuperViewConstraint?.isActive = true
         leadingToSuperViewConstraint?.isActive = true
+        centerXToSuperViewConstraint?.isActive = false
 
         setMarginFromSideEdge()
     }
@@ -145,12 +148,17 @@ extension RotatableView {
         case .trailing:
             trailingToSuperViewConstraint?.isActive = true
             leadingToSuperViewConstraint?.isActive = false
+            centerXToSuperViewConstraint?.isActive = false
+
         case .leading:
             leadingToSuperViewConstraint?.isActive = true
             trailingToSuperViewConstraint?.isActive = false
+            centerXToSuperViewConstraint?.isActive = false
+
         case .center:
-            trailingToSuperViewConstraint?.isActive = true
-            leadingToSuperViewConstraint?.isActive = true
+            trailingToSuperViewConstraint?.isActive = false
+            leadingToSuperViewConstraint?.isActive = false
+            centerXToSuperViewConstraint?.isActive = true
         }
         widthConstraint?.isActive = true
         widthConstraint?.constant = landscapeConfiguration.width
