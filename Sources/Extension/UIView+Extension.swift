@@ -15,23 +15,21 @@ extension UIView {
 
     func add(contentViewController: UIViewController, topPadding: CGFloat) {
         parentViewController?.addChild(contentViewController)
-        if let contentView = contentViewController.view {
-            addSubview(contentView)
-            contentView.translatesAutoresizingMaskIntoConstraints = false
-            contentView.topAnchor.constraint(lessThanOrEqualTo: topAnchor, constant: topPadding).isActive = true
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-            bringSubviewToFront(contentView)
-        }
+        addSubview(contentViewController.view)
+        contentViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        contentViewController.view.topAnchor.constraint(equalTo: topAnchor, constant: topPadding).isActive = true
+        contentViewController.view.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor).isActive = true
+        contentViewController.view.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        contentViewController.view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        bringSubviewToFront(contentViewController.view)
         contentViewController.didMove(toParent: parentViewController)
     }
 
     func add(contentView: UIView, topPadding: CGFloat) {
         addSubview(contentView)
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.topAnchor.constraint(lessThanOrEqualTo: topAnchor, constant: topPadding).isActive = true
-        contentView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        contentView.topAnchor.constraint(equalTo: topAnchor, constant: topPadding).isActive = true
+        contentView.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor).isActive = true
         contentView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         contentView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         bringSubviewToFront(contentView)

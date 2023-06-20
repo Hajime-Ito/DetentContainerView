@@ -13,7 +13,7 @@ final class StretchHandler {
 
     enum StretchSpeed: Float {
         case `default` = 0.8
-        case slow = 0.05
+        case slow = 0.08
         case zero = 0.0
     }
     

@@ -1,11 +1,21 @@
 import UIKit
 
+public protocol DetentContainerViewDelegate: NSObject {
+
+    func detentContainerView(_ view: DetentContainerView, didChangeDetent detent: Detent)
+    func detentContainerView(_ view: DetentContainerView, didChangeDetentAnimation detent: Detent)
+    func detentContainerView(_ view: DetentContainerView, didFinishChangeDetentAnimation detent: Detent)
+
+}
+
 public final class DetentContainerView: RotatableView {
 
     public var marginFromSideEdge: CGFloat = 5
     public var headerBarColor: UIColor = .secondaryLabel {
         didSet { headerView.barColor = headerBarColor }
     }
+
+    public weak var delegate: DetentContainerViewDelegate?
 
     private var maximumHeight: CGFloat = 0
     private var marginFromBottom: CGFloat = 0
@@ -134,6 +144,17 @@ extension DetentContainerView: StretchHandlerDelegate {
     func stretchHandler(translation: CGPoint, velocity: CGPoint, didStretch viewHeight: CGFloat) {
         guard let detentManager = detentManager else { return }
         guard let backgroundShadeDisplayPosition = detentManager.currentBackgroundShadeDisplayPosition else { return }
+
+        let aboveDetent = detentManager.currentHandler.detents.aboveCurrent
+        let belowDetent = detentManager.currentHandler.detents.belowCurrent
+
+        if let nextDetent = translation.y > 0 ? belowDetent : aboveDetent {
+            delegate?.detentContainerView(
+                self,
+                didChangeDetent: nextDetent
+            )
+        }
+
         backgroundShadeView.showShadeWithSlide(
             translation: translation,
             velocity: velocity,
@@ -152,9 +173,14 @@ extension DetentContainerView: StretchHandlerDelegate {
         stretchHandler?.stretch(
             to: currentHeight,
             animations: { [weak self] in
-                self?.backgroundShadeView.set(visibility: detentManager.shouldDisplayBackgroundShade)
+                guard let self else { return }
+                self.delegate?.detentContainerView(self, didChangeDetentAnimation: detentManager.currentHandler.detents.current)
+                self.backgroundShadeView.set(visibility: detentManager.shouldDisplayBackgroundShade)
             },
-            completion: nil
+            completion: { [weak self] in
+                guard let self else { return }
+                self.delegate?.detentContainerView(self, didFinishChangeDetentAnimation: detentManager.currentHandler.detents.current)
+            }
         )
     }
 
