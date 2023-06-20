@@ -3,7 +3,9 @@ import UIKit
 protocol StretchHandlerDelegate: NSObject {
 
     func stretchHandler(translation: CGPoint, velocity: CGPoint, didStretch viewHeight: CGFloat)
-    func stretchHandler(translation: CGPoint, velocity: CGPoint, finishStretch viewHeight: CGFloat)
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didFinishStretch viewHeight: CGFloat)
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didFinishSlide viewHeight: CGFloat)
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didSlideAnimation viewHeight: CGFloat)
     func stretchHandlerDidDisappear()
     func stretchHandlerDidAppear()
 
@@ -80,25 +82,41 @@ extension StretchHandler {
 
     private func handleAppearanceBySlide(translation: CGPoint, velocity: CGPoint) {
 
+        delegate?.stretchHandler(translation: translation, velocity: velocity, didFinishSlide: stretchActionHandler.height)
+
         let marginFromBottom = stretchActionHandler.marginFromBottom
         let stretchViewMinimumHeight = stretchActionHandler.stretchViewConfiguration.minimumHeight
         let isOverThresholdVelocityToSlideDown = velocity.y > thresholdVelocityToSlideDown
         let isUnderThresholdHeightToSlideDown = marginFromBottom + stretchViewMinimumHeight < stretchViewMinimumHeight * 0.6
 
         if allowSlideDown, (isUnderThresholdHeightToSlideDown || isOverThresholdVelocityToSlideDown) {
-            stretchActionHandler.disappear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidDisappear() }
+            stretchActionHandler.disappear(
+                animations: { [weak self] in
+                    guard let self else { return }
+                    let viewHeight = self.stretchActionHandler.height
+                    self.delegate?.stretchHandler(translation: translation, velocity: velocity, didSlideAnimation: viewHeight)
+                },
+                completion: { [weak self] in
+                    self?.delegate?.stretchHandlerDidDisappear()
+                }
+            )
         } else {
-            stretchActionHandler.appear(animations: nil) { [weak self] in self?.delegate?.stretchHandlerDidAppear() }
+            stretchActionHandler.appear(
+                animations: { [weak self] in
+                    guard let self else { return }
+                    let viewHeight = self.stretchActionHandler.height
+                    self.delegate?.stretchHandler(translation: translation, velocity: velocity, didSlideAnimation: viewHeight)
+                }, completion: { [weak self] in
+                    self?.delegate?.stretchHandlerDidAppear()
+                }
+            )
         }
 
     }
 
     private func handleStretch(translation: CGPoint, velocity: CGPoint, maximumHeight: CGFloat, minimumHeight: CGFloat) {
-        delegate?.stretchHandler(
-            translation: translation,
-            velocity: velocity,
-            didStretch: stretchActionHandler.height
-        )
+
+        delegate?.stretchHandler(translation: translation, velocity: velocity, didStretch: stretchActionHandler.height)
 
         if velocity.y < 0 {
             let isOverMaximumHeight = stretchActionHandler.height >= maximumHeight
@@ -144,7 +162,7 @@ extension StretchHandler {
                 self.delegate?.stretchHandler(
                     translation: item.translation,
                     velocity: item.velocity,
-                    finishStretch: self.stretchActionHandler.height
+                    didFinishStretch: self.stretchActionHandler.height
                 )
             }
 

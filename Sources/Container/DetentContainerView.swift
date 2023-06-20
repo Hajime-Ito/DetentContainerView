@@ -165,7 +165,7 @@ extension DetentContainerView: StretchHandlerDelegate {
         )
     }
 
-    func stretchHandler(translation: CGPoint, velocity: CGPoint, finishStretch viewHeight: CGFloat) {
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didFinishStretch viewHeight: CGFloat) {
         guard let detentManager = detentManager else { return }
         detentManager.currentHandler.changeDetentByPan(velocity: velocity, showingViewHeight: viewHeight, screenHeight: maximumHeight)
 
@@ -184,11 +184,26 @@ extension DetentContainerView: StretchHandlerDelegate {
         )
     }
 
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didFinishSlide viewHeight: CGFloat) {
+        guard let detentManager = detentManager else { return }
+        detentManager.currentHandler.changeDetentByPan(velocity: .zero, showingViewHeight: viewHeight, screenHeight: maximumHeight)
+    }
+
+    func stretchHandler(translation: CGPoint, velocity: CGPoint, didSlideAnimation viewHeight: CGFloat) {
+        guard let detentManager = detentManager else { return }
+        delegate?.detentContainerView(self, didChangeDetentAnimation: detentManager.currentHandler.detents.current)
+    }
+
     func stretchHandlerDidDisappear() {
+        guard let detentManager = detentManager else { return }
+        delegate?.detentContainerView(self, didFinishChangeDetentAnimation: detentManager.currentHandler.detents.current)
         backgroundShadeView.remove()
     }
 
-    func stretchHandlerDidAppear() { }
+    func stretchHandlerDidAppear() {
+        guard let detentManager = detentManager else { return }
+        delegate?.detentContainerView(self, didFinishChangeDetentAnimation: detentManager.currentHandler.detents.current)
+    }
 
 }
 
