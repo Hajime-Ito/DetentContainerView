@@ -10,6 +10,7 @@ public protocol DetentContainerViewDelegate: NSObject {
 
 public final class DetentContainerView: RotatableView {
 
+    public var currentDetent: Detent? { detentManager?.currentHandler.detents.current }
     public var marginFromSideEdge: CGFloat = 5
     public var headerBarColor: UIColor = .secondaryLabel {
         didSet { headerView.barColor = headerBarColor }
@@ -121,6 +122,14 @@ public final class DetentContainerView: RotatableView {
 
     public func stretch(to height: CGFloat, animations: (() -> Void)?, completion: (() -> Void)?) {
         stretchHandler?.stretch(to: height, animations: animations, completion: completion)
+    }
+
+    public func stretch(to detent: Detent, animations: (() -> Void)?, completion: (() -> Void)?) {
+        if let detent = detentManager?.currentHandler.detents.registerd.find(detent) {
+            let height = detent.height(from: maximumHeight)
+            detentManager?.currentHandler.detents.current = detent
+            stretchHandler?.stretch(to: height, animations: animations, completion: completion)
+        }
     }
 
     public func appear(height: CGFloat, animations: (() -> Void)?, completion: (() -> Void)?) {
